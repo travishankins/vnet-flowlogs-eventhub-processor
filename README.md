@@ -1,4 +1,4 @@
-````md
+
 # VNet/NSG Flow Logs → Event Hubs (Azure Functions · Python 3.11)
 
 This Azure Functions app ingests **Azure Network Watcher** flow-log files (NSG/VNet) from a **Storage Account (Blob trigger)**, parses them (v2/v3 formats), and forwards normalized records to **Azure Event Hubs** — using **Managed Identity** (no secrets).
