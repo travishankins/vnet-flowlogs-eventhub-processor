@@ -1,0 +1,12 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "type": "blobTrigger",
+      "direction": "in",
+      "name": "inputBlob",
+      "path": "insights-logs-networksecuritygroupflowevent/{*path}",
+      "connection": "FlowLogsStorage"
+    }
+  ]
+}

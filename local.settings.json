@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "EVENTHUB_FQDN": "your-namespace.servicebus.windows.net",
+    "EVENTHUB_NAME": "nw-flowlogs",
+    "MAX_EVENTS_PER_BATCH": "500"
+  }
+}
