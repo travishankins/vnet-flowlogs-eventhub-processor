@@ -5,7 +5,7 @@
       "type": "blobTrigger",
       "direction": "in",
       "name": "inputBlob",
-      "path": "insights-logs-networksecuritygroupflowevent/{*path}",
+      "path": "insights-logs-flowlogflowevent/{*path}",
       "connection": "FlowLogsStorage"
     }
   ]
