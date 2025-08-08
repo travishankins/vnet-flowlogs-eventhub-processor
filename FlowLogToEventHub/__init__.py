@@ -16,10 +16,6 @@ EVENTHUB_FQDN = os.getenv("EVENTHUB_FQDN")         # e.g., "mynamespace.serviceb
 EVENTHUB_NAME = os.getenv("EVENTHUB_NAME")         # e.g., "nw-flowlogs"
 MAX_EVENTS_PER_BATCH = int(os.getenv("MAX_EVENTS_PER_BATCH", "500"))
 
-# Validate required environment variables
-if not EVENTHUB_FQDN or not EVENTHUB_NAME:
-    raise ValueError("EVENTHUB_FQDN and EVENTHUB_NAME environment variables must be set")
-
 # Create a single, long-lived producer client (Functions worker process reuses this across invocations)
 _producer: Optional[EventHubProducerClient] = None
 
@@ -27,6 +23,8 @@ def _get_producer() -> EventHubProducerClient:
     """Gets or creates a long-lived Event Hub producer client."""
     global _producer
     if _producer is None:
+        if not EVENTHUB_FQDN or not EVENTHUB_NAME:
+            raise ValueError("EVENTHUB_FQDN and EVENTHUB_NAME environment variables must be set")
         try:
             cred = DefaultAzureCredential()
             _producer = EventHubProducerClient(
@@ -231,7 +229,11 @@ def _send_in_batches(producer: EventHubProducerClient, events: List[EventData]) 
                     batch.add(ev)
                 except ValueError:
                     # This event is too large to fit in a batch, even alone.
-                    logging.error("Event too large to fit in a batch (size: %d bytes), skipping.", len(ev.body))
+                    try:
+                        size = len(ev.body_as_bytes())
+                        logging.error("Event too large to fit in a batch (size: %d bytes), skipping.", size)
+                    except Exception:
+                        logging.error("Event too large to fit in a batch, skipping.")
                     continue
             
             # Send batch if it reaches max size
