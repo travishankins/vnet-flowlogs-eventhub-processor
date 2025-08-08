@@ -1,4 +1,3 @@
-
 # VNet/NSG Flow Logs → Event Hubs (Azure Functions · Python 3.11)
 
 This Azure Functions app ingests **Azure Network Watcher** flow-log files (NSG/VNet) from a **Storage Account (Blob trigger)**, parses them (v2/v3 formats), and forwards normalized records to **Azure Event Hubs** — using **Managed Identity** (no secrets).
@@ -61,8 +60,8 @@ In your **Function App → Configuration → Application settings**, add:
 
 | Setting | Value |
 |---|---|
-| `FlowLogsStorage__blobServiceUri` | `https://<FLOWLOG_ACCOUNT>.blob.core.windows.net` |
-| `FlowLogsStorage__queueServiceUri` | `https://<FLOWLOG_ACCOUNT>.queue.core.windows.net` |
+| `FlowLogsStorage__blobServiceUri` | `https://<FLOWLOG_ACCOUNT>.blob.core.windows.net/<CONTAINER_NAME>` (replace with your actual storage account name and container path for the flow logs) |
+| `FlowLogsStorage__queueServiceUri` | `https://<FLOWLOG_ACCOUNT>.queue.core.windows.net/<CONTAINER_NAME>` (replace with your actual storage account name and container path for the flow logs) |
 | `FlowLogsStorage__credential` | `managedidentity` |
 | `EVENTHUB_FQDN` | `<eventhubs-namespace>.servicebus.windows.net` |
 | `EVENTHUB_NAME` | `<your-event-hub-name>` |
@@ -86,7 +85,7 @@ The blob trigger path is defined in `FlowLogToEventHub/function.json`. Default:
       "type": "blobTrigger",
       "direction": "in",
       "name": "inputBlob",
-      "path": "insights-logs-networksecuritygroupflowevent/{*path}",
+      "path": "insights-logs-flowlogflowevent/{*path}",
       "connection": "FlowLogsStorage"
     }
   ]
@@ -244,7 +243,7 @@ func start
 
 1. **Confirm Functions discovered your function** (Functions blade shows `FlowLogToEventHub`).
 2. **Log streaming**: Function App → **Log streaming**.
-3. **Drop a small test blob** in your flow-log container (e.g., `insights-logs-networksecuritygroupflowevent`).
+3. **Drop a small test blob** in your flow-log container (e.g., `insights-logs-flowlogflowevent`). Ensure this matches the container path configured in `function.json`.
 4. **Event Hubs**: Use “Process data” blade or a simple consumer to verify messages.
 
 **Example single event emitted to Event Hubs:**
@@ -279,6 +278,7 @@ func start
   * Ensure the Function’s managed identity has **Storage Blob Data Reader** on the **flow-log storage account**.
   * If logs show 403 to `queue.core.windows.net`, add **Storage Queue Data Contributor** on that storage account.
   * Give RBAC **2–5 minutes** to propagate.
+  * **Also verify that the container path in `function.json` matches the actual Storage container name where flow logs are stored.**
 
 * **401/403 sending to Event Hubs**
 
